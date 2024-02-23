@@ -8,18 +8,15 @@
 import SwiftUI
 
 struct ImageCellView: View {
+    
+    let proxy: GeometryProxy
+    let photo: Photo
+    
     var body: some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(.red)
-                .frame(height: 130)
-            HStack {
-                Text("<Title could be long>")
-                    .foregroundStyle(Theme.text)
-                Spacer()
-            }
-            .padding(8)
-            .background(Theme.cellBackground)
+
+            imagePreview
+            title
             
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -31,6 +28,38 @@ struct ImageCellView: View {
 }
 
 #Preview {
-    ImageCellView()
-        .frame(width: 200)
+    GeometryReader { proxy in
+        ImageCellView(proxy: proxy, photo: Photo.previewProduct)
+            .frame(width: 200)
+    }
+}
+
+private extension ImageCellView {
+    
+    @ViewBuilder
+    var imagePreview: some View {
+        let dimension = (proxy.size.width - 48)/2
+        AsyncImage(url: .init(string: photo.url)) { image in
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(width: dimension,height: dimension)
+                .clipped()
+        } placeholder: {
+            ProgressView()
+        }
+    }
+    
+    @ViewBuilder
+    var title: some View {
+        HStack {
+            Text("\(photo.title)")
+                .foregroundStyle(Theme.text)
+                .lineLimit(2)
+            Spacer()
+        }
+        .frame(height: 50)
+        .padding(8)
+        .background(Theme.cellBackground)
+    }
 }

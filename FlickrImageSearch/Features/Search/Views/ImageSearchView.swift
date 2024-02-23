@@ -11,22 +11,35 @@ struct ImageSearchView: View {
     
     private let columns = Array(repeating: GridItem(.flexible()), count: 2)
     
+    @State private var photos: [Photo] = []
+    
     var body: some View {
         NavigationStack {
-            ZStack {
-                
-                background
-                
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(1...10, id: \.self) { num in
-                            ImageCellView()
+            GeometryReader { proxy in
+                ZStack {
+                    
+                    background
+                    
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(photos) { photo in
+                                ImageCellView(proxy: proxy, photo: photo)
+                            }
                         }
+                        .padding([.leading, .trailing])
                     }
-                    .padding([.leading, .trailing])
+                }
+                .navigationTitle("Image Search")
+                .onAppear {
+                    do {
+                        let results = try StaticJSONMapper.decode(file: "ImagesStaticData", type: PhotosSearchResponse.self)
+                        photos = results.photos.photo
+                    } catch {
+                        // TODO: Handle any errors
+                        print(error)
+                    }
                 }
             }
-            .navigationTitle("Image Search")
         }
     }
 }

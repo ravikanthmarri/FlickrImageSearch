@@ -16,6 +16,8 @@
 		3D075E0A2B88E0B400D6F792 /* StaticJSONMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E092B88E0B400D6F792 /* StaticJSONMapper.swift */; };
 		3D075E0C2B88E68500D6F792 /* ImageSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E0B2B88E68500D6F792 /* ImageSearchView.swift */; };
 		3D075E0E2B88F6D200D6F792 /* ImageCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E0D2B88F6D200D6F792 /* ImageCellView.swift */; };
+		3D075E102B88FE2900D6F792 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E0F2B88FE2900D6F792 /* Photo.swift */; };
+		3D075E132B892ED100D6F792 /* NetworkingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E122B892ED100D6F792 /* NetworkingManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		3D075E092B88E0B400D6F792 /* StaticJSONMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticJSONMapper.swift; sourceTree = "<group>"; };
 		3D075E0B2B88E68500D6F792 /* ImageSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSearchView.swift; sourceTree = "<group>"; };
 		3D075E0D2B88F6D200D6F792 /* ImageCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCellView.swift; sourceTree = "<group>"; };
+		3D075E0F2B88FE2900D6F792 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		3D075E122B892ED100D6F792 /* NetworkingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +95,7 @@
 		3D075DFD2B87E58F00D6F792 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				3D075E112B892EA900D6F792 /* API */,
 				3D075E082B88E08A00D6F792 /* Mapper */,
 			);
 			path = Base;
@@ -127,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				3D075E062B88D2E800D6F792 /* PhotosSearchResponse.swift */,
+				3D075E0F2B88FE2900D6F792 /* Photo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -152,6 +158,14 @@
 				3D075E092B88E0B400D6F792 /* StaticJSONMapper.swift */,
 			);
 			path = Mapper;
+			sourceTree = "<group>";
+		};
+		3D075E112B892EA900D6F792 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				3D075E122B892ED100D6F792 /* NetworkingManager.swift */,
+			);
+			path = API;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,10 +239,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D075E102B88FE2900D6F792 /* Photo.swift in Sources */,
 				3D075E0E2B88F6D200D6F792 /* ImageCellView.swift in Sources */,
 				3D075DFC2B87E50500D6F792 /* Theme.swift in Sources */,
 				3D075E0C2B88E68500D6F792 /* ImageSearchView.swift in Sources */,
 				3D075DED2B87DD9B00D6F792 /* FlickrImageSearchApp.swift in Sources */,
+				3D075E132B892ED100D6F792 /* NetworkingManager.swift in Sources */,
 				3D075E072B88D2E800D6F792 /* PhotosSearchResponse.swift in Sources */,
 				3D075E0A2B88E0B400D6F792 /* StaticJSONMapper.swift in Sources */,
 			);
