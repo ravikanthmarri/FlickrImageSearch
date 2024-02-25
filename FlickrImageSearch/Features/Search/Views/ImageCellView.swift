@@ -47,6 +47,7 @@ private extension ImageCellView {
                 .clipped()
         } placeholder: {
             ProgressView()
+                .frame(width: dimension,height: dimension)
         }
     }
     

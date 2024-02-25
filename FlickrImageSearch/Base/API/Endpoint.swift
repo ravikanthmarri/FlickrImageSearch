@@ -10,7 +10,7 @@ import Foundation
 let apiKey = "c61b99b69046e37211dd95aa85e7b5c5"
 
 enum Endpoint {
-    case search(text: String)
+    case search(text: String, page: Int)
     // Scalable for future implementation to implement Image details, set tags features
     case getInfo(photoId: Int)
     case setTags(photoId: Int, tags: String)
@@ -40,11 +40,12 @@ extension Endpoint {
         
     var queryItems: [String: String]? {
         switch self {
-        case .search(let text):
+        case .search(let text, let page):
             return ["method": "flickr.photos.search",
                     "text": "\(text)",
                     "content_types": "0",
-                    "per_page":"8"]
+                    "per_page":"8",
+                    "page": "\(page)"]
             
         // Scalable for future implementation to get Photo details, set tags for photo features
         case .getInfo(let photoId):

@@ -12,17 +12,28 @@ final class ImageSearchViewModel {
     
     private(set) var photos: [Photo] = []
     private(set) var error: NetworkingManager.NetworkingError?
-    private(set) var isLoading = false
+    private(set) var viewState: ViewState?
     var hasError = false
     
+    var searchString: String = "Forest"
+    private var page = 1
+    private var totalPages: Int?
+    
+    var isLoading: Bool {
+        viewState == .loading
+    }
+    
+    var isFetching: Bool {
+        viewState == .fetching
+    }
+
     func fetchPhotos() async {
-        isLoading = true
-        defer {
-            isLoading = false
-        }
+        viewState = .loading
+        defer { viewState = .finished }
 
         do {
-            let response = try await NetworkingManager.shared.request(.search(text: "Forest"), type: PhotosSearchResponse.self)
+            let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
+            self.totalPages = response.photos.pages
             self.photos = response.photos.photo
         } catch {
             self.hasError = true
@@ -32,5 +43,40 @@ final class ImageSearchViewModel {
                 self.error = .custom(error: error)
             }
         }
+    }
+    
+    func fetchNextSetOfPhotos() async {
+        
+        guard page != totalPages else { return }
+        
+        viewState = .fetching
+        defer { viewState = .finished }
+        
+        page += 1 
+        
+        do {
+            let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
+            self.totalPages = response.photos.pages
+            self.photos += response.photos.photo
+        } catch {
+            self.hasError = true
+            if let networkingError = error as? NetworkingManager.NetworkingError {
+                self.error = networkingError
+            } else {
+                self.error = .custom(error: error)
+            }
+        }
+    }
+    
+    func hasReachedEnd(photo: Photo) -> Bool {
+        photos.last?.id == photo.id
+    }
+}
+
+extension ImageSearchViewModel {
+    enum ViewState {
+        case loading
+        case fetching
+        case finished
     }
 }

@@ -12,7 +12,7 @@ struct ImageSearchView: View {
     private let columns = Array(repeating: GridItem(.flexible()), count: 2)
     
     @State private var vm = ImageSearchViewModel()
-    
+        
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
@@ -27,13 +27,24 @@ struct ImageSearchView: View {
                             LazyVGrid(columns: columns, spacing: 16) {
                                 ForEach(vm.photos) { photo in
                                     ImageCellView(proxy: proxy, photo: photo)
+                                        .task {
+                                            if vm.hasReachedEnd(photo: photo) && !vm.isFetching {
+                                                await vm.fetchNextSetOfPhotos()
+                                            }
+                                        }
                                 }
                             }
                             .padding([.leading, .trailing])
                         }
+                        .overlay(alignment: .bottom) {
+                            if vm.isFetching {
+                                ProgressView()
+                            }
+                        }
                     }
                 }
                 .navigationTitle("Image Search")
+                .searchable(text: $vm.searchString)
                 .task {
                     await vm.fetchPhotos()
                 }
