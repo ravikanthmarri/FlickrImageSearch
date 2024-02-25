@@ -18,6 +18,8 @@
 		3D075E0E2B88F6D200D6F792 /* ImageCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E0D2B88F6D200D6F792 /* ImageCellView.swift */; };
 		3D075E102B88FE2900D6F792 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E0F2B88FE2900D6F792 /* Photo.swift */; };
 		3D075E132B892ED100D6F792 /* NetworkingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E122B892ED100D6F792 /* NetworkingManager.swift */; };
+		3D075E152B8A097800D6F792 /* ImageSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E142B8A097800D6F792 /* ImageSearchViewModel.swift */; };
+		3D075E172B8AC7E600D6F792 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D075E162B8AC7E600D6F792 /* Endpoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +35,8 @@
 		3D075E0D2B88F6D200D6F792 /* ImageCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCellView.swift; sourceTree = "<group>"; };
 		3D075E0F2B88FE2900D6F792 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		3D075E122B892ED100D6F792 /* NetworkingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingManager.swift; sourceTree = "<group>"; };
+		3D075E142B8A097800D6F792 /* ImageSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSearchViewModel.swift; sourceTree = "<group>"; };
+		3D075E162B8AC7E600D6F792 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +144,7 @@
 		3D075E022B87E62A00D6F792 /* View Models */ = {
 			isa = PBXGroup;
 			children = (
+				3D075E142B8A097800D6F792 /* ImageSearchViewModel.swift */,
 			);
 			path = "View Models";
 			sourceTree = "<group>";
@@ -164,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				3D075E122B892ED100D6F792 /* NetworkingManager.swift */,
+				3D075E162B8AC7E600D6F792 /* Endpoint.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -243,8 +249,10 @@
 				3D075E0E2B88F6D200D6F792 /* ImageCellView.swift in Sources */,
 				3D075DFC2B87E50500D6F792 /* Theme.swift in Sources */,
 				3D075E0C2B88E68500D6F792 /* ImageSearchView.swift in Sources */,
+				3D075E172B8AC7E600D6F792 /* Endpoint.swift in Sources */,
 				3D075DED2B87DD9B00D6F792 /* FlickrImageSearchApp.swift in Sources */,
 				3D075E132B892ED100D6F792 /* NetworkingManager.swift in Sources */,
+				3D075E152B8A097800D6F792 /* ImageSearchViewModel.swift in Sources */,
 				3D075E072B88D2E800D6F792 /* PhotosSearchResponse.swift in Sources */,
 				3D075E0A2B88E0B400D6F792 /* StaticJSONMapper.swift in Sources */,
 			);

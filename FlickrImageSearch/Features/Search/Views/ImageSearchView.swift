@@ -11,7 +11,7 @@ struct ImageSearchView: View {
     
     private let columns = Array(repeating: GridItem(.flexible()), count: 2)
     
-    @State private var photos: [Photo] = []
+    @State private var vm = ImageSearchViewModel()
     
     var body: some View {
         NavigationStack {
@@ -20,23 +20,28 @@ struct ImageSearchView: View {
                     
                     background
                     
-                    ScrollView {
-                        LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(photos) { photo in
-                                ImageCellView(proxy: proxy, photo: photo)
+                    if vm.isLoading {
+                        ProgressView()
+                    } else {
+                        ScrollView {
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(vm.photos) { photo in
+                                    ImageCellView(proxy: proxy, photo: photo)
+                                }
                             }
+                            .padding([.leading, .trailing])
                         }
-                        .padding([.leading, .trailing])
                     }
                 }
                 .navigationTitle("Image Search")
-                .onAppear {
-                    do {
-                        let results = try StaticJSONMapper.decode(file: "ImagesStaticData", type: PhotosSearchResponse.self)
-                        photos = results.photos.photo
-                    } catch {
-                        // TODO: Handle any errors
-                        print(error)
+                .task {
+                    await vm.fetchPhotos()
+                }
+                .alert(isPresented: $vm.hasError, error: vm.error) {
+                    Button("Retry") {
+                        Task {
+                            await vm.fetchPhotos()
+                        }
                     }
                 }
             }
