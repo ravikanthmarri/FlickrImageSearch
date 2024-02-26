@@ -12,7 +12,7 @@ struct ImageSearchView: View {
     private let columns = Array(repeating: GridItem(.flexible()), count: 2)
     
     @State private var vm = ImageSearchViewModel()
-        
+    
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
@@ -25,10 +25,10 @@ struct ImageSearchView: View {
                     } else {
                         ScrollView {
                             LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(vm.photos) { photo in
+                                ForEach(vm.allPhotos) { photo in
                                     ImageCellView(proxy: proxy, photo: photo)
                                         .task {
-                                            if vm.hasReachedEnd(photo: photo) && !vm.isFetching {
+                                            if vm.hasReachedEnd(photo: photo) {
                                                 await vm.fetchNextSetOfPhotos()
                                             }
                                         }

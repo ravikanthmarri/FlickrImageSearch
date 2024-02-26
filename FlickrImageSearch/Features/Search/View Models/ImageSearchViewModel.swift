@@ -10,7 +10,8 @@ import Foundation
 @Observable
 final class ImageSearchViewModel {
     
-    private(set) var photos: [Photo] = []
+    private(set) var allPhotos: [Photo] = []
+    private(set) var photoIds = [String]()
     private(set) var error: NetworkingManager.NetworkingError?
     private(set) var viewState: ViewState?
     var hasError = false
@@ -34,7 +35,7 @@ final class ImageSearchViewModel {
         do {
             let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
             self.totalPages = response.photos.pages
-            self.photos = response.photos.photo
+            appendUniquePhotos(photos: response.photos.photo)
         } catch {
             self.hasError = true
             if let networkingError = error as? NetworkingManager.NetworkingError {
@@ -47,17 +48,21 @@ final class ImageSearchViewModel {
     
     func fetchNextSetOfPhotos() async {
         
-        guard page != totalPages else { return }
+        guard page != totalPages else { 
+            return
+        }
         
         viewState = .fetching
-        defer { viewState = .finished }
+        defer {
+            viewState = .finished
+        }
         
         page += 1 
-        
+    
         do {
             let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
             self.totalPages = response.photos.pages
-            self.photos += response.photos.photo
+            appendUniquePhotos(photos: response.photos.photo)
         } catch {
             self.hasError = true
             if let networkingError = error as? NetworkingManager.NetworkingError {
@@ -69,7 +74,20 @@ final class ImageSearchViewModel {
     }
     
     func hasReachedEnd(photo: Photo) -> Bool {
-        photos.last?.id == photo.id
+        photoIds.last == photo.id
+    }
+    
+
+    ///
+    ///  Flicr service response is returning duplicate photos, because of this ForEach loop behaviour is unpredictable.
+    ///  So appending only unique photos ...to keep the list elements unique...
+    func appendUniquePhotos(photos: [Photo]) {
+        for photo in photos {
+            if !photoIds.contains(photo.id) {
+                photoIds.append(photo.id)
+                allPhotos.append(photo)
+            }
+        }
     }
 }
 
@@ -78,5 +96,16 @@ extension ImageSearchViewModel {
         case loading
         case fetching
         case finished
+    }
+}
+
+extension ImageSearchViewModel {
+    func reset() {
+        if viewState == .finished {
+            allPhotos.removeAll()
+            page = 1
+            totalPages = nil
+            viewState = nil
+        }
     }
 }
