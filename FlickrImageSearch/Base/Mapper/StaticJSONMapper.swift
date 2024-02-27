@@ -11,9 +11,10 @@ struct StaticJSONMapper {
     
     static func decode<T: Decodable>(file: String, type: T.Type) throws -> T {
         
-        guard let path = Bundle.main.path(forResource: file , ofType: "json"),
-                let data = FileManager.default.contents(atPath: path) else {
-            throw MappingError.failedToGetContrnts
+        guard !file.isEmpty,
+              let path = Bundle.main.path(forResource: file , ofType: "json"),
+              let data = FileManager.default.contents(atPath: path) else {
+            throw MappingError.failedToGetContents
         }
         
         let decoder = JSONDecoder()
@@ -23,6 +24,6 @@ struct StaticJSONMapper {
 
 extension StaticJSONMapper {
     enum MappingError: Error {
-        case failedToGetContrnts
+        case failedToGetContents
     }
 }

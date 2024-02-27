@@ -8,13 +8,13 @@
 import Foundation
 
 // MARK :- PhotosSearchResponse
-struct PhotosSearchResponse: Codable {
+struct PhotosSearchResponse: Codable, Equatable {
     let photos: SearchResult
     
 }
 
 // MARK :- SearchResult
-struct SearchResult: Codable {
+struct SearchResult: Codable, Equatable {
     let page: Int
     let pages: Int
     let perpage: Int

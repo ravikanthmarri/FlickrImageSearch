@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK :- Photo
-struct Photo: Codable, Identifiable {
+struct Photo: Codable, Identifiable, Equatable {
     let id: String
     let owner: String
     let secret: String
