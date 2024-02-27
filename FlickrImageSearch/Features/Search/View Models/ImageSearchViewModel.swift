@@ -15,10 +15,15 @@ final class ImageSearchViewModel {
     private(set) var photoIds = [String]()
     private(set) var error: NetworkingManager.NetworkingError?
     private(set) var viewState: ViewState?
-    var hasError = false
+    private let networkingManager: NetworkingManagerImpl
     
-    private var page = 1
-    private var totalPages: Int?
+    private(set) var page = 1
+    private(set) var totalPages: Int?
+    var searchHistory = [String]()
+    var showSearchSuggetions = false
+    var hasError = false
+    private var searchTextPublisher = PassthroughSubject<String, Never>()
+    private var cancellables = Set<AnyCancellable>()
     
     var searchText = "" {
         didSet {
@@ -28,12 +33,6 @@ final class ImageSearchViewModel {
         }
     }
     
-    var searchHistory = [String]()
-    var showSearchSuggetions = false
-    
-    private var searchTextPublisher = PassthroughSubject<String, Never>()
-    private var cancellables = Set<AnyCancellable>()
-    
     var isLoading: Bool {
         viewState == .loading
     }
@@ -42,8 +41,9 @@ final class ImageSearchViewModel {
         viewState == .fetching
     }
     
-    init() {
-        addSubscribers()
+    init(networkingManager: NetworkingManagerImpl = NetworkingManager.shared) {
+        self.networkingManager = networkingManager
+        self.addSubscribers()
     }
     
     func addSubscribers() {
@@ -56,7 +56,9 @@ final class ImageSearchViewModel {
                     showSearchSuggetions = true
                 } else {
                     addToSearchHistsory(query: newValue)
-                    self.fetchPhotos(query: newValue)
+                    Task {
+                        await self.fetchPhotos(query: newValue)
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -83,23 +85,21 @@ final class ImageSearchViewModel {
         }
     }
 
-    func fetchPhotos(query: String) {
+    func fetchPhotos(query: String) async {
         reset()
         viewState = .loading
         defer { viewState = .finished }
         
-        Task {
-            do {
-                let response = try await NetworkingManager.shared.request(.search(text: query, page: page), type: PhotosSearchResponse.self)
-                self.totalPages = response.photos.pages
-                appendUniquePhotos(photos: response.photos.photo)
-            } catch {
-                self.hasError = true
-                if let networkingError = error as? NetworkingManager.NetworkingError {
-                    self.error = networkingError
-                } else {
-                    self.error = .custom(error: error)
-                }
+        do {
+            let response = try await networkingManager.request(session: .shared, .search(text: query, page: page), type: PhotosSearchResponse.self)
+            self.totalPages = response.photos.pages
+            appendUniquePhotos(photos: response.photos.photo)
+        } catch {
+            self.hasError = true
+            if let networkingError = error as? NetworkingManager.NetworkingError {
+                self.error = networkingError
+            } else {
+                self.error = .custom(error: error)
             }
         }
     }
@@ -117,7 +117,7 @@ final class ImageSearchViewModel {
         page += 1 
     
         do {
-            let response = try await NetworkingManager.shared.request(.search(text: searchText, page: page), type: PhotosSearchResponse.self)
+            let response = try await networkingManager.request(session: .shared, .search(text: searchText, page: page), type: PhotosSearchResponse.self)
             self.totalPages = response.photos.pages
             appendUniquePhotos(photos: response.photos.photo)
         } catch {
