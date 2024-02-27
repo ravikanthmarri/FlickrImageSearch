@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @Observable
 final class ImageSearchViewModel {
@@ -16,9 +17,22 @@ final class ImageSearchViewModel {
     private(set) var viewState: ViewState?
     var hasError = false
     
-    var searchString: String = "Forest"
     private var page = 1
     private var totalPages: Int?
+    
+    var searchText = "" {
+        didSet {
+            if oldValue != searchText {
+                searchTextPublisher.send(searchText)
+            }
+        }
+    }
+    
+    var searchHistory = [String]()
+    var showSearchSuggetions = false
+    
+    private var searchTextPublisher = PassthroughSubject<String, Never>()
+    private var cancellables = Set<AnyCancellable>()
     
     var isLoading: Bool {
         viewState == .loading
@@ -27,27 +41,70 @@ final class ImageSearchViewModel {
     var isFetching: Bool {
         viewState == .fetching
     }
+    
+    init() {
+        addSubscribers()
+    }
+    
+    func addSubscribers() {
+        searchTextPublisher
+            .debounce(for: 1, scheduler: DispatchQueue.main)
+            .sink { [weak self] newValue in
+                guard let self else { return }
+                if newValue.isEmpty {
+                    reset()
+                    showSearchSuggetions = true
+                } else {
+                    addToSearchHistsory(query: newValue)
+                    self.fetchPhotos(query: newValue)
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    func addToSearchHistsory(query: String) {
+        if !self.searchHistory.contains(query) && query.count > 2 {
+            self.searchHistory.insert(query, at: 0)
+            showSearchSuggetions = false
+        }
+    }
+    
+    func getSearchSuggetions() -> [String] {
+        let filteredSearchHistory = searchHistory.filter { item in
+            item.contains(searchText)
+        }
+        
+        if searchText.isEmpty {
+            return searchHistory
+        } else if showSearchSuggetions == false {
+            return [String]()
+        } else {
+            return filteredSearchHistory
+        }
+    }
 
-    func fetchPhotos() async {
+    func fetchPhotos(query: String) {
+        reset()
         viewState = .loading
         defer { viewState = .finished }
-
-        do {
-            let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
-            self.totalPages = response.photos.pages
-            appendUniquePhotos(photos: response.photos.photo)
-        } catch {
-            self.hasError = true
-            if let networkingError = error as? NetworkingManager.NetworkingError {
-                self.error = networkingError
-            } else {
-                self.error = .custom(error: error)
+        
+        Task {
+            do {
+                let response = try await NetworkingManager.shared.request(.search(text: query, page: page), type: PhotosSearchResponse.self)
+                self.totalPages = response.photos.pages
+                appendUniquePhotos(photos: response.photos.photo)
+            } catch {
+                self.hasError = true
+                if let networkingError = error as? NetworkingManager.NetworkingError {
+                    self.error = networkingError
+                } else {
+                    self.error = .custom(error: error)
+                }
             }
         }
     }
     
     func fetchNextSetOfPhotos() async {
-        
         guard page != totalPages else { 
             return
         }
@@ -60,7 +117,7 @@ final class ImageSearchViewModel {
         page += 1 
     
         do {
-            let response = try await NetworkingManager.shared.request(.search(text: searchString, page: page), type: PhotosSearchResponse.self)
+            let response = try await NetworkingManager.shared.request(.search(text: searchText, page: page), type: PhotosSearchResponse.self)
             self.totalPages = response.photos.pages
             appendUniquePhotos(photos: response.photos.photo)
         } catch {
@@ -74,12 +131,11 @@ final class ImageSearchViewModel {
     }
     
     func hasReachedEnd(photo: Photo) -> Bool {
-        photoIds.last == photo.id
+        return photoIds.suffix(4).contains(photo.id)
     }
     
-
     ///
-    ///  Flicr service response is returning duplicate photos, because of this ForEach loop behaviour is unpredictable.
+    ///  Flickr service response is returning duplicate photos, because of this ForEach loop behaviour is unpredictable.
     ///  So appending only unique photos ...to keep the list elements unique...
     func appendUniquePhotos(photos: [Photo]) {
         for photo in photos {
@@ -103,6 +159,7 @@ extension ImageSearchViewModel {
     func reset() {
         if viewState == .finished {
             allPhotos.removeAll()
+            photoIds.removeAll()
             page = 1
             totalPages = nil
             viewState = nil

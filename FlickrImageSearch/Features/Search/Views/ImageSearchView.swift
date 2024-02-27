@@ -19,8 +19,9 @@ struct ImageSearchView: View {
                 ZStack {
                     
                     background
-                    
-                    if vm.isLoading {
+                    if vm.searchText.isEmpty && vm.allPhotos.isEmpty {
+                        contentUnavaialble
+                    } else if vm.isLoading {
                         ProgressView()
                     } else {
                         ScrollView {
@@ -28,7 +29,7 @@ struct ImageSearchView: View {
                                 ForEach(vm.allPhotos) { photo in
                                     ImageCellView(proxy: proxy, photo: photo)
                                         .task {
-                                            if vm.hasReachedEnd(photo: photo) {
+                                            if vm.hasReachedEnd(photo: photo) && !vm.isFetching {
                                                 await vm.fetchNextSetOfPhotos()
                                             }
                                         }
@@ -44,15 +45,20 @@ struct ImageSearchView: View {
                     }
                 }
                 .navigationTitle("Image Search")
-                .searchable(text: $vm.searchString)
-                .task {
-                    await vm.fetchPhotos()
+                .searchable(text: $vm.searchText)
+                .searchSuggestions {
+                    ForEach(vm.getSearchSuggetions(), id: \.self) { item in
+                        Button {
+                            vm.searchText = item
+                            vm.showSearchSuggetions = false
+                        } label: {
+                            Label(item, systemImage: "bookmark")
+                        }
+                    }
                 }
                 .alert(isPresented: $vm.hasError, error: vm.error) {
                     Button("Retry") {
-                        Task {
-                            await vm.fetchPhotos()
-                        }
+                        vm.searchText = ""
                     }
                 }
             }
@@ -69,6 +75,10 @@ private extension ImageSearchView {
     var background: some View {
         Theme.background
             .ignoresSafeArea()
+    }
+    
+    var contentUnavaialble: some View {
+        ContentUnavailableView("Please enter your search string above", systemImage: "magnifyingglass.circle.fill")
     }
     
 }
