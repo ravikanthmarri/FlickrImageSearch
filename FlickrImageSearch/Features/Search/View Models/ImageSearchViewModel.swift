@@ -135,8 +135,8 @@ final class ImageSearchViewModel {
     }
     
     ///
-    ///  Flickr service response is returning duplicate photos, because of this ForEach loop behaviour is unpredictable.
-    ///  So appending only unique photos ...to keep the list elements unique...
+    ///  Flickr service response is returning photos with duplicate id's, because of this SwiftUI - LazyVGrid - cells are getting from visisble range.
+    ///  So appending only photos with unique id's ...to keep the list elements unique...
     func appendUniquePhotos(photos: [Photo]) {
         for photo in photos {
             if !photoIds.contains(photo.id) {
